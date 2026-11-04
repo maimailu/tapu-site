@@ -290,6 +290,16 @@
     (function () {
       var MAIL_API = 'https://www.maizizi.vaserver.com/api/mail_api.php';
       var MAIL_TO = 'maizizi@gmail.com';
+      // ============================================================
+      // 【要貼網址的地方】Google 試算表收件匣
+      //   1. 先照 google-sheet/README.md，把 google-sheet/Code.gs 貼進 Google 試算表的 Apps Script 並部署
+      //   2. 部署完會拿到一串以 /exec 結尾的網址
+      //   3. 把網址貼在下面這一行的引號中間，例如：
+      //        var SHEET_API = 'https://script.google.com/macros/s/xxxxxxxx/exec';
+      //   留空（兩個引號中間沒有東西）＝不寫入試算表，只寄信，網站功能不受影響
+      // ============================================================
+      var SHEET_API =
+        'https://script.google.com/macros/s/AKfycbzhNdEf5IwqTUy_wgT5Qo7oQ5LQl70rDL6aUJdkq6rqJxjLmck2ZXhpx-N-18TU7Ic6/exec';
       var form = document.getElementById('contactForm');
       var btn = document.getElementById('submitBtn');
       var stack = document.getElementById('toastStack');
@@ -369,6 +379,27 @@
         ].join('\n');
 
         setBusy(true);
+        // ---- 步驟 A：把這筆來信寫進 Google 試算表（SHEET_API 有填才會執行）----
+        // 用 no-cors 送出，所以網頁看不到結果；寫入失敗也不會影響下面的寄信與 toast 提示
+        if (SHEET_API) {
+          try {
+            fetch(SHEET_API, {
+              method: 'POST',
+              mode: 'no-cors',
+              keepalive: true,
+              headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+              },
+              body: JSON.stringify({
+                name: name,
+                company: company,
+                email: email,
+                message: message
+              })
+            }).catch(function () {});
+          } catch (_) {}
+        }
+        // ---- 步驟 B：寄信給 MAIL_TO（原本的功能，成功／失敗的 toast 以這一步為準）----
         var ctrl = new AbortController();
         var timer = setTimeout(function () {
           ctrl.abort();
