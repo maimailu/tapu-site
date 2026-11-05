@@ -341,7 +341,7 @@ ul {
   margin-inline: auto;
 }
 
-#future .center > p {
+#future .center>p {
   color: var(--ink);
   font-size: clamp(13px, 1.05vw, 15px);
   letter-spacing: .14em;
@@ -687,6 +687,22 @@ ul {
   object-fit: cover;
 }
 
+.c-photo-wrap {
+  position: relative;
+  margin: 0;
+}
+
+.c-photo-wrap figcaption {
+  position: absolute;
+  left: 8px;
+  bottom: 7px;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: .04em;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .55);
+}
+
 .c-sansui1,
 .c-sansui2 {
   object-fit: contain;
@@ -730,9 +746,69 @@ ul {
 }
 
 @media (max-width: 767px) {
+  #way {
+    padding-block: 0;
+  }
+
   .collage {
-    gap: 8px;
+    grid-template-columns: 1fr;
+    width: 100vw;
+    gap: 0;
     margin-bottom: 40px;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .collage .c-sansui1 {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .collage .c-photo-wrap:nth-of-type(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .collage .c-photo-wrap:nth-of-type(2) {
+    grid-column: 1;
+    grid-row: 2;
+    transform: translateY(-5px);
+  }
+
+  .collage .c-sansui2 {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .collage .c-sansui1,
+  .collage .c-sansui2 {
+    width: 100%;
+    opacity: 0.28;
+  }
+
+  .collage .c-sansui1 {
+    height: clamp(170px, 50vw, 230px);
+    transform: translateY(-12px) scale(1.18);
+    transform-origin: right bottom;
+  }
+
+  .collage .c-sansui2 {
+    position: relative;
+    height: auto;
+    aspect-ratio: 772 / 515;
+    align-self: end;
+    margin-top: -18px;
+    margin-bottom: -180px;
+    transform: translate(-8px, 24px) scale(1.12);
+    transform-origin: left bottom;
+    z-index: 0;
+  }
+
+  .collage .c-photo-wrap {
+    position: relative;
+    z-index: 1;
+    width: 86%;
+    justify-self: center;
+    align-self: center;
   }
 
   .logo img {
@@ -1931,9 +2007,29 @@ html.modal-open {
 }
 
 /* 聯絡我們：地圖 iframe 與表單不可超出畫面（iframe 的 width="650" 會把手機版整欄撐寬） */
-.split > * { min-width: 0; }
-.split .text iframe { display: block; width: 100%; max-width: 100%; height: 300px; border: 0; }
-.form, .form label, .form input[type=text], .form input[type=email], .form textarea { max-width: 100%; box-sizing: border-box; }
+.split>* {
+  min-width: 0;
+}
+
+.split .text iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 300px;
+  border: 0;
+}
+
+.form,
+.form label,
+.form input[type=text],
+.form input[type=email],
+.form textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 767px) {
-  .split .text iframe { height: 260px; }
+  .split .text iframe {
+    height: 260px;
+  }
 }
