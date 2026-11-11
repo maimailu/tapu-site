@@ -1893,21 +1893,13 @@ html.modal-open {
   margin-right: auto;
 }
 
-/* 成就不凡：可滑動的輪播 */
+/* 成就不凡：輪播（第 1 張影片、後 3 張照片連結官網；不可拖曳換張） */
 .slider {
   position: relative;
   width: 100%;
   aspect-ratio: 1391 / 1038;
   overflow: hidden;
   background: var(--mid);
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: grab;
-}
-
-.slider.dragging {
-  cursor: grabbing;
 }
 
 .slider:focus-visible {
@@ -1923,18 +1915,41 @@ html.modal-open {
   will-change: transform;
 }
 
-.slider.dragging .slider-track {
-  transition: none;
+.slider-track .slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
 }
 
-.slider-track img {
-  flex: 0 0 100%;
+.slider-track a.slide {
+  cursor: pointer;
+}
+
+.slider-track a.slide:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
+.slider-track .slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  pointer-events: none;
   -webkit-user-drag: none;
+}
+
+/* 影片那張：下方留一條黑色空間給圓點，避免蓋住 YouTube 的控制列 */
+.slide-video {
+  background: #000;
+}
+
+.slide-video iframe {
+  display: block;
+  width: 100%;
+  height: calc(100% - 36px);
+  border: 0;
 }
 
 .dots {

@@ -169,16 +169,31 @@
             <li>2010 廣豐大境</li>
           </ul>
         </div>
-        <div class="slider" aria-roledescription="carousel" aria-label="接待會館照片輪播" tabindex="0">
+        <!-- 輪播：第 1 張＝影片（YouTube）；第 2～4 張＝照片，點擊前往西門翫官方網站 -->
+        <div class="slider" aria-roledescription="carousel" aria-label="西門翫接待會館影片與照片輪播" tabindex="0">
           <div class="slider-track">
-            <img src="image/receive-01.webp" alt="西門翫接待會館 1" draggable="false" decoding="async">
-            <img src="image/receive-02.webp" alt="西門翫接待會館 2" draggable="false" decoding="async">
-            <img src="image/receive-03.webp" alt="西門翫接待會館 3" draggable="false" decoding="async">
+            <!-- 第 1 張：影片。要換影片，只要改下面 src 裡的影片代號（embed/ 後面那串） -->
+            <div class="slide slide-video">
+              <iframe src="https://www.youtube-nocookie.com/embed/NOHvR8MTgNg?rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+                title="西門翫 形象影片" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <!-- 第 2～4 張：照片，連結到官方網站（新分頁開啟）。要換網址請三處一起改 -->
+            <a class="slide" href="https://www.maizizi.vaserver.com/ximenwan/" target="_blank" rel="noopener" aria-label="前往西門翫官方網站（接待會館照片 1）">
+              <img src="image/receive-01.webp" alt="西門翫接待會館 1" draggable="false" decoding="async">
+            </a>
+            <a class="slide" href="https://www.maizizi.vaserver.com/ximenwan/" target="_blank" rel="noopener" aria-label="前往西門翫官方網站（接待會館照片 2）">
+              <img src="image/receive-02.webp" alt="西門翫接待會館 2" draggable="false" decoding="async">
+            </a>
+            <a class="slide" href="https://www.maizizi.vaserver.com/ximenwan/" target="_blank" rel="noopener" aria-label="前往西門翫官方網站（接待會館照片 3）">
+              <img src="image/receive-03.webp" alt="西門翫接待會館 3" draggable="false" decoding="async">
+            </a>
           </div>
           <div class="dots">
-            <button type="button" class="on" aria-label="第 1 張"></button>
+            <button type="button" class="on" aria-label="第 1 張（影片）"></button>
             <button type="button" aria-label="第 2 張"></button>
             <button type="button" aria-label="第 3 張"></button>
+            <button type="button" aria-label="第 4 張"></button>
           </div>
         </div>
       </div>
@@ -552,28 +567,36 @@
     })();
   </script>
   <script>
-    // 成就不凡：照片輪播（可手指／滑鼠左右滑動、點圓點切換、自動播放）
+    // 成就不凡：輪播（第 1 張影片、後 3 張照片連結官網）。
+    // 已移除「手指／滑鼠拖曳換張」：點照片＝前往官網；換張請用下方圓點、鍵盤 ← →，或照片自動輪播。
     (function () {
       var s = document.querySelector('.slider');
       if (!s) return;
       var track = s.querySelector('.slider-track');
       var dots = Array.prototype.slice.call(s.querySelectorAll('.dots button'));
+      var video = s.querySelector('.slide-video iframe');
       var n = track.children.length,
         i = 0,
-        w = 0,
-        sx = 0,
-        sy = 0,
-        dx = 0,
-        down = false,
-        moved = false,
         timer = null;
 
+      function pauseVideo() { // 離開影片那張時暫停播放
+        try {
+          video.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'pauseVideo',
+            args: []
+          }), '*');
+        } catch (_) {}
+      }
+
       function go(k) {
+        var prev = i;
         i = Math.max(0, Math.min(n - 1, k));
         track.style.transform = 'translate3d(' + (-i * 100) + '%,0,0)';
         dots.forEach(function (d, j) {
           d.classList.toggle('on', j === i);
         });
+        if (prev === 0 && i !== 0 && video) pauseVideo();
       }
 
       function stop() {
@@ -581,58 +604,17 @@
         timer = null;
       }
 
+      // 自動輪播：只在照片頁換張；停在影片那張時不會自己跳走，避免打斷播放
       function play() {
         stop();
         timer = setInterval(function () {
+          if (i === 0) return;
           go(i + 1 >= n ? 0 : i + 1);
         }, 5000);
       }
 
-      s.addEventListener('pointerdown', function (e) {
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-        down = true;
-        moved = false;
-        sx = e.clientX;
-        sy = e.clientY;
-        dx = 0;
-        w = s.clientWidth;
-        stop();
-      });
-      s.addEventListener('pointermove', function (e) {
-        if (!down) return;
-        dx = e.clientX - sx;
-        if (!moved) {
-          if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(e.clientY - sy)) {
-            moved = true;
-            s.classList.add('dragging');
-            try {
-              s.setPointerCapture(e.pointerId);
-            } catch (_) {}
-          } else return;
-        }
-        // 第一張往右拉、最後一張往左拉時加阻尼
-        var edge = (i === 0 && dx > 0) || (i === n - 1 && dx < 0);
-        var off = edge ? dx * 0.35 : dx;
-        track.style.transform = 'translate3d(calc(' + (-i * 100) + '% + ' + off + 'px),0,0)';
-      });
-
-      function end() {
-        if (!down) return;
-        down = false;
-        s.classList.remove('dragging');
-        if (moved) {
-          if (dx < -w * 0.15) go(i + 1);
-          else if (dx > w * 0.15) go(i - 1);
-          else go(i);
-        }
-        play();
-      }
-      s.addEventListener('pointerup', end);
-      s.addEventListener('pointercancel', end);
       s.addEventListener('mouseenter', stop);
-      s.addEventListener('mouseleave', function () {
-        if (!down) play();
-      });
+      s.addEventListener('mouseleave', play);
       s.addEventListener('focusin', stop);
       s.addEventListener('focusout', play);
       s.addEventListener('keydown', function (e) {
