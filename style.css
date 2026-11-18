@@ -392,6 +392,7 @@ ul {
 
 .form input[type=text],
 .form input[type=email],
+.form input[type=tel],
 .form textarea {
   width: 100%;
   padding: 12px 14px;
@@ -1893,21 +1894,13 @@ html.modal-open {
   margin-right: auto;
 }
 
-/* 成就不凡：可滑動的輪播 */
+/* 成就不凡：輪播（第 1 張影片、後 4 張照片；照片不連結；不可拖曳換張） */
 .slider {
   position: relative;
   width: 100%;
   aspect-ratio: 1391 / 1038;
   overflow: hidden;
   background: var(--mid);
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: grab;
-}
-
-.slider.dragging {
-  cursor: grabbing;
 }
 
 .slider:focus-visible {
@@ -1923,18 +1916,41 @@ html.modal-open {
   will-change: transform;
 }
 
-.slider.dragging .slider-track {
-  transition: none;
+.slider-track .slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
 }
 
-.slider-track img {
-  flex: 0 0 100%;
+.slider-track a.slide {
+  cursor: pointer;
+}
+
+.slider-track a.slide:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
+.slider-track .slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  pointer-events: none;
   -webkit-user-drag: none;
+}
+
+/* 影片那張：下方留一條黑色空間給圓點，避免蓋住 YouTube 的控制列 */
+.slide-video {
+  background: #000;
+}
+
+.slide-video iframe {
+  display: block;
+  width: 100%;
+  height: calc(100% - 36px);
+  border: 0;
 }
 
 .dots {
@@ -2023,6 +2039,7 @@ html.modal-open {
 .form label,
 .form input[type=text],
 .form input[type=email],
+.form input[type=tel],
 .form textarea {
   max-width: 100%;
   box-sizing: border-box;
@@ -2032,4 +2049,267 @@ html.modal-open {
   .split .text iframe {
     height: 260px;
   }
+}
+
+/* 首頁右上角選單：電腦版（寬度 1024px 以上）放大字。
+   手機與平板維持原本大小（平板空間有限，放大會擠到 Logo）。
+   要再大／小：改 font-size；選項之間的距離改 gap */
+@media (min-width: 1024px) {
+  .nav {
+    font-size: 20px;
+    gap: 44px;
+  }
+}
+
+
+/* =========================================================
+   成就不凡：左邊文字框（照參考圖）＋ 線上熱銷（手指圖＋連結）
+========================================================= */
+.section.gray.achv-section {
+  background: #f7f7f7;
+}
+
+.achv .tab {
+  display: none;
+}
+
+.achv {
+  align-items: stretch;
+}
+
+/* 文字框：淺灰底的卡片，高度跟右邊輪播一樣 */
+.achv .feature-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 clamp(28px, 6vw, 90px) 0 clamp(20px, 4vw, 64px);
+  padding: clamp(28px, 3.4vw, 52px) clamp(24px, 3vw, 44px);
+  background: #eee;
+}
+
+.achv-title {
+  letter-spacing: .08em;
+}
+
+.achv-intro {
+  margin: 0;
+  color: #3c3b39;
+}
+
+/* 線上熱銷：左邊小標籤 ＋ 右邊整條連結，手指圖在連結右上角 */
+.achv-hot {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  margin-top: 26px;
+}
+
+.achv-hot__tag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 15px;
+  background: #c0a6a7;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+
+.achv-hot__link {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 62px 6px 18px;
+  background: #a78886;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.5;
+  transition: background .2s;
+}
+
+.achv-hot__link:hover,
+.achv-hot__link:focus-visible {
+  background: #94706e;
+}
+
+.achv-hot__link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* 手指圖：放在連結右端、上下置中，沒有底色色塊，直接用手指圖本身的顏色。
+   會輕輕往左下點動提醒可以點（系統設定減少動態時不動） */
+.achv-hot__hand {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  display: block;
+  transform: translateY(-50%);
+}
+
+.achv-hot__hand img {
+  display: block;
+  width: 26px;
+  height: auto;
+  animation: achv-hand-tap 1.6s ease-in-out infinite;
+}
+
+@keyframes achv-hand-tap {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-3px, 3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achv-hot__hand img {
+    animation: none;
+  }
+}
+
+/* 年份清單：三欄、由上往下排（參考圖：每欄 4 個），上下各一條白線 */
+.achv .years {
+  grid-template-columns: repeat(3, auto);
+  grid-template-rows: repeat(4, auto);
+  grid-auto-flow: column;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-top: 22px;
+  padding: 20px 0;
+  border-block: 3px solid #fff;
+  color: #646361;
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .achv .feature-text {
+    margin: 0 20px;
+    padding: 28px 22px;
+  }
+
+  .achv-hot {
+    flex-wrap: wrap;
+  }
+
+  .achv-hot__link {
+    flex-basis: 100%;
+  }
+
+  .achv .years {
+    grid-template-columns: repeat(2, auto);
+    grid-template-rows: repeat(5, auto);
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   經典個案：紅底（#C32B05）＋標題
+========================================================= */
+.feats-wrap {
+  margin-top: 80px;
+  padding-bottom: 14px;
+  background: #C32B05;
+}
+
+.feats-title {
+  margin: 0;
+  padding: 16px 16px;
+  color: #fff;
+  font-size: clamp(22px, 1.9vw, 28px); /* 標題字大小：電腦約 22～28px，手機 20px（見下方手機版） */
+  font-weight: 700;
+  letter-spacing: .4em;
+  text-align: center;
+  text-indent: .4em;
+}
+
+.feats-wrap .feats {
+  margin-top: 0;
+  background: transparent;
+}
+
+@media (max-width: 1023px) {
+  .feats-wrap {
+    margin-top: 56px;
+  }
+}
+
+@media (max-width: 767px) {
+  .feats-wrap {
+    margin-top: 40px;
+    padding-bottom: 0;
+  }
+
+  .feats-title {
+    padding: 14px 16px;
+    font-size: 20px;
+  }
+
+  .feats-wrap .feats-dots {
+    margin-top: 0;
+    background: transparent;
+  }
+
+  .feats-wrap .feats-dots button {
+    border-color: #fff;
+  }
+
+  .feats-wrap .feats-dots button.on {
+    background: #fff;
+  }
+}
+
+/* =========================================================
+   聯絡我們：紅底（#C32B05）
+========================================================= */
+#contact.section.dark {
+  background: #C32B05;
+}
+
+#contact.section.dark p,
+#contact.section.dark label,
+#contact.section.dark .eyebrow {
+  color: #fff;
+}
+
+#contact .form button[type="submit"] {
+  background: #1f1f1f;
+}
+
+#contact .form button[type="submit"]:hover {
+  background: #000;
+}
+
+#contact .form input:focus,
+#contact .form textarea:focus {
+  outline-color: #fff;
+}
+
+#contact .form .link-btn {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, .7);
+}
+
+/* 頁尾：紅底（#C32B05），文字改白色；上緣一條淡白線，跟上方同為紅色的「聯絡我們」區分開 */
+.site-footer {
+  background: #C32B05;
+  color: #fff;
+  border-top: 1px solid rgba(255, 255, 255, .28);
+}
+
+/* 紅底上，logo 裡原本紅色的「P」會看不見，所以整個 logo 轉成純白色 */
+.site-footer .footer-logo {
+  filter: brightness(0) invert(1);
 }
