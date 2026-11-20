@@ -2313,3 +2313,9 @@ html.modal-open {
 .site-footer .footer-logo {
   filter: brightness(0) invert(1);
 }
+
+/* 「洞悉價值」選單的錨點（沒有 JS 時的備援）：html 已有 scroll-padding-top（選單高度），
+   這裡用負值抵銷一部分，讓卡片停在離畫面上緣約 64px 的位置 */
+#insight-start {
+  scroll-margin-top: calc(64px - var(--header-h));
+}

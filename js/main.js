@@ -156,12 +156,58 @@
         if (id !== '#top' && id !== '#' && !target) return;
         e.preventDefault();
         if (menuToggle) menuToggle.checked = false;
+        // 往下跳：捲動時選單會自動收起，單元直接貼齊畫面上緣（offset 0）；
+        // 往上跳：選單會出現，單元要貼在選單下緣（offset＝選單高度）
+        var goingDown = target && target.getBoundingClientRect().top > header.offsetHeight;
         gsap.to(window, {
-          scrollTo: { y: target || 0, offsetY: target ? header.offsetHeight - 1 : 0, autoKill: true },
-          duration: 1.4, ease: 'power3.inOut'
+          scrollTo: { y: target || 0, offsetY: target ? jumpOffset(target, goingDown) : 0, autoKill: true },
+          duration: 1.4, ease: 'power3.inOut',
+          onComplete: function () { settle(target, 0); }
         });
         if (history.replaceState) history.replaceState(null, '', id);
       });
+    });
+
+    /* 落地校正：捲動途中若有圖片載入完成、版面高度變了，單元頂端會差幾十 px，
+     * 這裡在捲完後檢查一次，沒貼齊選單下緣就再補捲（最多 3 次），確保每次都貼齊 */
+    /* 目標離畫面上緣要留多少 px：
+     * 有 data-jump-offset 的（例如「洞悉價值」那張卡片）用它指定的值（最多不超過視窗高度的 12%，小螢幕才不會留太多）；
+     * 沒有的：選單收起時貼齊上緣（0），選單出現時貼在選單下緣 */
+    function jumpOffset(target, menuHidden) {
+      var custom = parseFloat(target.getAttribute('data-jump-offset'));
+      if (!isNaN(custom)) return Math.min(custom, Math.round(window.innerHeight * 0.12));
+      return menuHidden ? 0 : header.offsetHeight - 1;
+    }
+
+    function settle(target, n) {
+      if (!target) return;
+      if (n >= 3) { tuckHeader(target); return; }
+      var off = jumpOffset(target, hidden); // hidden：選單目前是收起的
+      var diff = target.getBoundingClientRect().top - off;
+      if (Math.abs(diff) <= 2) { tuckHeader(target); return; }
+      gsap.to(window, {
+        scrollTo: { y: target, offsetY: off, autoKill: true },
+        duration: 0.45, ease: 'power2.out',
+        onComplete: function () { settle(target, n + 1); }
+      });
+    }
+
+    /* 停靠位置比選單還高（例如卡片離上緣 64px、選單 72px）時，選單會蓋住目標的頂端，
+     * 所以落地後把選單收起來（往上捲動一下就會再出現），畫面才跟設計的位置一樣 */
+    function tuckHeader(target) {
+      if (isNaN(parseFloat(target.getAttribute('data-jump-offset')))) return; // 只處理有指定停靠距離的目標
+      if (jumpOffset(target, true) < header.offsetHeight && !hidden) {
+        hidden = true;
+        gsap.to(header, { yPercent: -100, duration: 0.5, overwrite: 'auto' });
+      }
+    }
+
+    /* 頁面載入完成後，在背景把還沒載入的圖片先載好：
+     * 這樣點選單時，版面高度已經固定，不會邊捲邊被延遲載入的圖片推動 */
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        qa('img[loading="lazy"]').forEach(function (im) { im.loading = 'eager'; });
+      }, 600);
     });
 
     /* ---------- 保險：主視覺若 6 秒後仍看不見，強制顯示 ---------- */

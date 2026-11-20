@@ -37,7 +37,7 @@
     <label for="menu-toggle" class="menu-btn" aria-hidden="true"><span></span></label>
     <nav class="nav">
       <a href="#way">大樸之道</a>
-      <a href="#insight">洞悉價值</a>
+      <a href="#insight-start">洞悉價值</a>
       <a href="#achievements">成就不凡</a>
       <a href="#future">共築未來</a>
       <a href="#contact">聯絡我們</a>
@@ -112,7 +112,8 @@
         <div class="pic wide"><img src="image/value-banner.jpg" alt="村泉 NEO ONE 大廳" loading="lazy"><span class="cap">村泉
             NEO ONE</span></div>
         <div class="container">
-          <div class="value-card">
+          <!-- 選單「洞悉價值」的錨點：點了會停在這張卡片（卡片離畫面上緣的距離由 data-jump-offset 決定，單位 px） -->
+          <div class="value-card" id="insight-start" data-jump-offset="64">
             <h3 class="serif">從土地本質<br>看見獨特價值</h3>
             <p>從業主的期許，深入區域脈絡、體察生活需求<br>我們透過觀察與思辨，梳理產品的定位<br>讓每一步規劃有所依循，讓每一份構想逐步成形</p>
           </div>
